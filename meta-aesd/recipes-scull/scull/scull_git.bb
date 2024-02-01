@@ -75,6 +75,7 @@ FILES:${PN} += "${INIT_D_DIR}/${INITSCRIPT_NAME:${PN}}"
 # https://stackoverflow.com/questions/49748528/yocto-files-directories-were-installed-but-not-shipped-in-any-package
 FILES:${PN} += "${bindir}/scull_load"     
 FILES:${PN} += "${bindir}/scull_unload"   
+FILES:${PN} += "${base_libdir}/modules/5.15.18"
 
 do_install () {
 	# TODO: Install your binaries/scripts here.
@@ -97,4 +98,12 @@ do_install () {
 	install -d ${D}${bindir}
 	install -m 755 ${S}/scull_load   ${D}${bindir}/
 	install -m 755 ${S}/scull_unload ${D}${bindir}/
+
+#	nasty fix to overcome hardcoded path in scull_load
+#       ln -s 5.15.124-yocto-standard 5.15.18 
+	wg_mydir=${PWD}
+	cd ${D}${base_libdir}/modules/
+	ln -sf ${KERNEL_VERSION} "5.15.18"
+	cd $wg_mydir
+
 }
