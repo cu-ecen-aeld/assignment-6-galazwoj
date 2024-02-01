@@ -6,13 +6,13 @@
 #	~/github/assignment-6-galazwoj/build$ 	devtool add scull https://github.com/cu-ecen-aeld/assignment-7-galazwoj
 # ii. Modify the ldd3 makefile in the devtool working directory to include only scull and misc-modules components
 #	vi Makefile
-# iii. Use devtool finish to save the corresponding .bb and Makefile patch files to your repository as a “scull” recipe in the meta-aesd layer.
+# iii. Use devtool finish to save the corresponding .bb and Makefile patch files to your repository as a "scull" recipe in the meta-aesd layer.
 #	~/github/assignment-6-galazwoj/build$ 	devtool finish -f scull meta-aesd
 # iv. Modify the task-install in the .bb file to use the correct module folder for the M argument.  You can do this with an EXTRA_OEMAKE_append_task-install = " -C ${STAGING_KERNEL_DIR} M=${S}/scull"
-# v. Add a “files” subfolder in your scull recipe and place an init script in this folder which does the portion of initialization specific to the scull module.
+# v. Add a "files" subfolder in your scull recipe and place an init script in this folder which does the portion of initialization specific to the scull module.
 #	placed S97_scull_module there	
 # vi. Use the update-rc.d framework used in the previous assignment to install the script.
-# vii. Copy the scull recipe to a new “misc-modules” recipe.
+# vii. Copy the scull recipe to a new "misc-modules" recipe.
 # viii. Modify the misc-modules recipe to include an install script for misc-modules components.
 # ix. Include both scull and misc-modules in your core-image-aesd image.
 #
@@ -36,11 +36,11 @@ SRCREV = "734901997bb9d00ecfa5d6854fb573c449d8f8b7"
 # https://docs.yoctoproject.org/ref-manual/variables.html?highlight=workdir#term-WORKDIR
 # We reference the "scull" directory here to build from the "scull" directory
 # in your assignments repo
-S = "${WORKDIR}/git"
+S = "${WORKDIR}/git/scull"
 
 inherit module
 # (see iv above)
-EXTRA_OEMAKE:append:task-install = " -C ${STAGING_KERNEL_DIR} M=${S}/scull"
+EXTRA_OEMAKE:append:task-install = " -C ${STAGING_KERNEL_DIR} M=${S}"
 EXTRA_OEMAKE += "KERNELDIR=${STAGING_KERNEL_DIR}"
 RPROVIDES:${PN} += "kernel-module-scull"
 
@@ -72,8 +72,9 @@ INITSCRIPT_NAME:${PN} = "S97_scull_module"
 INITSCRIPT_PARAMS = "defaults 97 03"
 
 FILES:${PN} += "${INIT_D_DIR}/${INITSCRIPT_NAME:${PN}}"
-FILES:${PN} += "${base_libdir}/modules/${KERNEL_VERSION}/extra/scull_load"
-FILES:${PN} += "${base_libdir}/modules/${KERNEL_VERSION}/extra/scull_unload"
+# https://stackoverflow.com/questions/49748528/yocto-files-directories-were-installed-but-not-shipped-in-any-package
+FILES:${PN} += "${bindir}/scull_load"     
+FILES:${PN} += "${bindir}/scull_unload"   
 
 do_install () {
 	# TODO: Install your binaries/scripts here.
@@ -85,19 +86,15 @@ do_install () {
 	# See example at https://github.com/cu-ecen-aeld/ecen5013-yocto/blob/ecen5013-hello-world/meta-ecen5013/recipes-ecen5013/ecen5013-hello-world/ecen5013-hello-world_git.bb
 
 #	script to /etc/init.d	
-#	install -d ${D}${sysconfdir}/init.d
-#	install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME:${PN}} ${D}${sysconfdir}/init.d/
 	install -d ${D}${INIT_D_DIR}
 	install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME:${PN}} ${D}${INIT_D_DIR}
 
 #	kernel module
 	install -d ${D}${base_libdir}/modules/${KERNEL_VERSION}/extra
-	install -m 755 ${S}/scull/scull.ko ${D}${base_libdir}/modules/${KERNEL_VERSION}/extra/scull.ko
+	install -m 755 ${S}/scull.ko ${D}${base_libdir}/modules/${KERNEL_VERSION}/extra/scull.ko
 
 #	scripts to /usr/bin
-#	install -m 755 ${S}/scull_load ${D}${base_libdir}/modules/${KERNEL_VERSION}/extra/scull_load
-#	install -m 755 ${S}/scull_unload ${D}${base_libdir}/modules/${KERNEL_VERSION}/extra/scull_unload
 	install -d ${D}${bindir}
-	install -m 755 ${S}/scull/scull_load   ${D}${bindir}/
-	install -m 755 ${S}/scull/scull_unload ${D}${bindir}/
+	install -m 755 ${S}/scull_load   ${D}${bindir}/
+	install -m 755 ${S}/scull_unload ${D}${bindir}/
 }
