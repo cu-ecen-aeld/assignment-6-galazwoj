@@ -20,14 +20,14 @@
 # based on meta-ased/recipes-scull/scull/scull_git.bb
 #
 # See https://git.yoctoproject.org/poky/tree/meta/files/common-licenses
+SUMMARY = "misc-modules module"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 # XTODO: Set this  with the path to your assignments rep.  Use ssh protocol and see lecture notes
 # about how to setup ssh-agent for passwordless access
-SRC_URI = "git://github.com/cu-ecen-aeld/assignment-7-galazwoj;protocol=https;branch=master \
-           file://S96_misc_modules \
-	  "	
+SRC_URI  = "git://github.com/cu-ecen-aeld/assignment-7-galazwoj;protocol=https;branch=master"
+SRC_URI += "file://S96_misc_modules"
 
 # Modify these as desired
 PV = "1.0+git${SRCPV}"
@@ -60,7 +60,6 @@ inherit update-rc.d
 # The script will be called with the "start" command at system
 # startup, the "stop" command at system shutdown, and the "restart" command
 # when the package is updated.
-#INITSCRIPT_NAME = "S97_scull_modules"
 INITSCRIPT_PACKAGES = "${PN}"
 INITSCRIPT_NAME:${PN} = "S96_misc_modules"
 
